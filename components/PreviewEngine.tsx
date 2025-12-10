@@ -4,10 +4,12 @@ import { VideoConfig, ProfilePosition } from '../types';
 
 interface PreviewProps {
   config: VideoConfig;
+  hideVideo?: boolean;
+  isExport?: boolean;
 }
 
-const PreviewEngine: React.FC<PreviewProps> = ({ config }) => {
-  
+const PreviewEngine: React.FC<PreviewProps> = ({ config, hideVideo = false, isExport = false }) => {
+
   // Helper to render the Profile/User Info block
   const renderProfile = () => (
     <div className="flex items-center gap-3 w-full animate-fade-in">
@@ -31,7 +33,7 @@ const PreviewEngine: React.FC<PreviewProps> = ({ config }) => {
   const renderStyledText = (text: string, isTop: boolean) => {
     if (!text) return null;
     return (
-      <div 
+      <div
         className="rounded-lg shadow-lg text-center mx-auto"
         style={{
           color: config.hookStyle.textColor,
@@ -54,22 +56,30 @@ const PreviewEngine: React.FC<PreviewProps> = ({ config }) => {
     );
   };
 
+  const containerClasses = isExport
+    ? "relative w-full h-full bg-black overflow-hidden"
+    : "relative w-[360px] h-[640px] bg-black rounded-[30px] border-8 border-gray-800 shadow-2xl overflow-hidden";
+
+  const wrapperClasses = isExport
+    ? "w-full h-full"
+    : "relative w-full h-full flex items-center justify-center p-8 bg-black/50";
+
   return (
-    <div className="relative w-full h-full flex items-center justify-center p-8 bg-black/50">
-      {/* Phone Frame */}
-      <div 
-        className="relative w-[360px] h-[640px] bg-black rounded-[30px] border-8 border-gray-800 shadow-2xl overflow-hidden"
-        style={{ boxShadow: '0 0 50px rgba(0,0,0,0.8)' }}
+    <div className={wrapperClasses}>
+      {/* Phone Frame / Export Container */}
+      <div
+        className={containerClasses}
+        style={isExport ? {} : { boxShadow: '0 0 50px rgba(0,0,0,0.8)' }}
       >
         {/* Background Layer */}
-        <div className="absolute inset-0 bg-gray-900">
+        <div className="absolute inset-0 bg-gray-900" style={{ opacity: hideVideo ? 0 : 1 }}>
           {config.backgroundVideoUrl ? (
-            <video 
-              src={config.backgroundVideoUrl} 
-              className="w-full h-full object-cover" 
-              autoPlay 
-              loop 
-              muted 
+            <video
+              src={config.backgroundVideoUrl}
+              className="w-full h-full object-cover"
+              autoPlay
+              loop
+              muted
               playsInline
             />
           ) : (
@@ -82,13 +92,13 @@ const PreviewEngine: React.FC<PreviewProps> = ({ config }) => {
         {/* Overlay "Card" */}
         <div className="absolute inset-0 flex items-center justify-center p-6">
           <div className="w-full bg-black/60 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-xl flex flex-col gap-4 transform translate-y-4">
-            
+
             {/* Slot 1: Profile (Top) */}
             {config.profilePosition === 'top' && renderProfile()}
 
             {/* Hook Text */}
             {renderStyledText(config.topText || "YOUR HOOK HERE", true)}
-            
+
             {/* Slot 2: Profile (Below Hook) */}
             {config.profilePosition === 'below-hook' && renderProfile()}
 
@@ -96,16 +106,16 @@ const PreviewEngine: React.FC<PreviewProps> = ({ config }) => {
             <div className="relative aspect-square w-full bg-gray-800 rounded-lg overflow-hidden border border-white/20 shrink-0">
               {config.overlayMediaUrl ? (
                 config.overlayMediaType === 'video' ? (
-                   <video 
-                    src={config.overlayMediaUrl} 
-                    className="w-full h-full object-cover" 
-                    autoPlay 
-                    loop 
-                    muted 
-                    playsInline 
-                   />
+                  !hideVideo && <video
+                    src={config.overlayMediaUrl}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
                 ) : (
-                   <img src={config.overlayMediaUrl} alt="Content" className="w-full h-full object-cover" />
+                  <img src={config.overlayMediaUrl} alt="Content" className="w-full h-full object-cover" />
                 )
               ) : (
                 <div className="flex items-center justify-center h-full text-gray-500">
@@ -125,12 +135,13 @@ const PreviewEngine: React.FC<PreviewProps> = ({ config }) => {
 
           </div>
         </div>
-        
+
         {/* Simulate UI Elements of TikTok/Reels */}
+        {/* In Export mode, we might want these too if they are part of the 'look', lets keep them */}
         <div className="absolute right-2 bottom-20 flex flex-col gap-4 items-center opacity-80">
-           <div className="w-10 h-10 bg-gray-800/50 rounded-full flex items-center justify-center text-white"><i className="fas fa-heart"></i></div>
-           <div className="w-10 h-10 bg-gray-800/50 rounded-full flex items-center justify-center text-white"><i className="fas fa-comment"></i></div>
-           <div className="w-10 h-10 bg-gray-800/50 rounded-full flex items-center justify-center text-white"><i className="fas fa-share"></i></div>
+          <div className="w-10 h-10 bg-gray-800/50 rounded-full flex items-center justify-center text-white"><i className="fas fa-heart"></i></div>
+          <div className="w-10 h-10 bg-gray-800/50 rounded-full flex items-center justify-center text-white"><i className="fas fa-comment"></i></div>
+          <div className="w-10 h-10 bg-gray-800/50 rounded-full flex items-center justify-center text-white"><i className="fas fa-share"></i></div>
         </div>
 
       </div>
